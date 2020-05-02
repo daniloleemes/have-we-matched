@@ -29,8 +29,8 @@ export default function SummonerInfo() {
 
     useEffect(() => {
         (async () => {
-            if (region && matchesData && matchesData.matches.length > 0) {
-                const array = matchesData.matches.slice(0, 3)
+            if (region && matchesData && matchesData.history.matches.length > 0) {
+                const array = matchesData.history.matches.slice(0, 20)
                 for (let m of array) {
                     const res = await fetch(`/api/matches/${region}/${m.gameId}`)
                     const data = await res.json()
@@ -38,14 +38,14 @@ export default function SummonerInfo() {
                     setProgress(parseInt((matches.length / array.length) * 100))
                 }
                 setLoadingMatchesSummary(true)
-                setMatchesSummary(parseMatches(matches))
+                setMatchesSummary(parseMatches(matches, matchesData.accountInfo.accountId))
             }
         })()
     }, [matchesData])
 
     useEffect(() => {
         if (matchesSummary) {
-
+            setLoadingMatchesSummary(false)
         }
     }, [matchesSummary])
 
@@ -66,7 +66,7 @@ export default function SummonerInfo() {
                         <div className="card bg-secondary border-0 mb-0">
                             <div className="card-body px-lg-5 py-lg-5">
                                 {!matchesData && <Spinner label="Fetching basic info" />}
-                                {matchesData && !loadingMatchesSummary && <ProgressBar label="Fetching matches" progress={progress} />}
+                                {matchesData && !loadingMatchesSummary && !matchesSummary && <ProgressBar label="Fetching matches" progress={progress} />}
                                 {loadingMatchesSummary && <Spinner label="Doing some complicated calculations" />}
                             </div>
                         </div>

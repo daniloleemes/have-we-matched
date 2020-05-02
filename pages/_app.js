@@ -1,4 +1,5 @@
 import '../public/css/argon.css'
+import '../public/css/custom.css'
 import '../public/vendor/nucleo/css/nucleo.css'
 import '../public/vendor/@fortawesome/fontawesome-free/css/all.min.css'
 

@@ -1,18 +1,14 @@
-import Header from './header'
-import Navbar from './navbar'
-import Content from './content'
-import Footer from './footer'
-
 function Layout({ children }) {
     return (
         <div className='bg-default'>
-            <Navbar />
-            <Header>
-                <h1 className="text-white">Welcome!</h1>
-                <p className="text-lead text-white">Use these awesome forms to login or create new account in your project for free.</p>
-            </Header>
-            <Content />
-            <Footer />
+            {children}
+            <script src="/vendor/jquery/dist/jquery.min.js"></script>
+            <script src="/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+            <script src="/vendor/js-cookie/js.cookie.js"></script>
+            <script src="/vendor/jquery.scrollbar/jquery.scrollbar.min.js"></script>
+            <script src="/vendor/jquery-scroll-lock/dist/jquery-scrollLock.min.js"></script>
+            <script src="/js/argon.js?v=1.2.0"></script>
+
         </div>
     )
 }

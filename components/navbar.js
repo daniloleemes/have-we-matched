@@ -24,24 +24,6 @@ function Navbar(props) {
                             </div>
                         </div>
                     </div>
-                    <ul className="navbar-nav mr-auto">
-                        <li className="nav-item">
-                            <a href="dashboard.html" className="nav-link">
-                                <span className="nav-link-inner--text">Dashboard</span>
-                            </a>
-                        </li>
-                        <li className="nav-item">
-                            <a href="login.html" className="nav-link">
-                                <span className="nav-link-inner--text">Login</span>
-                            </a>
-                        </li>
-                        <li className="nav-item">
-                            <a href="register.html" className="nav-link">
-                                <span className="nav-link-inner--text">Register</span>
-                            </a>
-                        </li>
-                    </ul>
-                    <hr className="d-lg-none" />
                     <ul className="navbar-nav align-items-lg-center ml-lg-auto">
                         <li className="nav-item">
                             <a className="nav-link nav-link-icon" href="https://www.facebook.com/creativetim" target="_blank" data-toggle="tooltip" data-original-title="Like us on Facebook">

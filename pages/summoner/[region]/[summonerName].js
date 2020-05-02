@@ -9,6 +9,7 @@ import Content from '../../../components/content'
 import Footer from '../../../components/footer'
 import Spinner from '../../../components/spinner'
 import ProgressBar from '../../../components/progressBar'
+import parseMatches from '../../../actions/parseMatches'
 
 const fetcher = async url => {
     const res = await fetch(url)
@@ -23,7 +24,7 @@ export default function SummonerInfo() {
     const { data: matchesData, error } = useSWR(() => region && summonerName && `/api/summoner/${region}/${summonerName}`, fetcher)
     const [matches, setMatches] = useState([]);
     const [progress, setProgress] = useState(0);
-    const [matchesSummary, setmatchesSummary] = useState(null);
+    const [matchesSummary, setMatchesSummary] = useState(null);
     const [loadingMatchesSummary, setLoadingMatchesSummary] = useState(false)
 
     useEffect(() => {
@@ -36,15 +37,17 @@ export default function SummonerInfo() {
                     setMatches(matches.push(data));
                     setProgress(parseInt((matches.length / array.length) * 100))
                 }
+                setLoadingMatchesSummary(true)
+                setMatchesSummary(parseMatches(matches))
             }
         })()
     }, [matchesData])
 
     useEffect(() => {
-        if (progress == 100) {
-            setLoadingMatchesSummary(true)
+        if (matchesSummary) {
+
         }
-    }, [progress])
+    }, [matchesSummary])
 
     return (
         <>

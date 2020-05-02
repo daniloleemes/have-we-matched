@@ -20,13 +20,13 @@ export default function (matches, accountId) {
         }
     }).reduce((result, match) => {
         if (match.win) {
-            result.victory.push(match.victory.filter(it => it.accountId != accountId || it.currentAccountId != accountId))
+            result.victory.push(match.victory.filter(it => it.currentAccountId != accountId))
         } else {
-            result.defeat.push(match.defeat.filter(it => it.accountId != accountId || it.currentAccountId != accountId))
+            result.defeat.push(match.defeat.filter(it => it.currentAccountId != accountId))
         }
 
-        return result
-    }, { victory: [], defeat: []})
+        return { victory: result.victory.flat(), defeat: result.defeat.flat() }
+    }, { victory: [], defeat: [] })
 
     return mapped
 }

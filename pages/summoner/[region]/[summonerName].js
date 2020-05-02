@@ -12,16 +12,20 @@ import ProgressBar from '../../../components/progressBar'
 import parseMatches from '../../../actions/parseMatches'
 
 const fetcher = async url => {
-    const res = await fetch(url)
-    const data = await res.json()
+    try {
+        const res = await fetch(url)
+        const data = await res.json()
 
-    return data
+        return data
+    } catch (error) {
+        return error
+    }
 }
 
 export default function SummonerInfo() {
     const { query } = useRouter()
     const { region, summonerName } = query
-    const { data: summonerData } = useSWR(() => region && summonerName && `/api/summoner/${region}/${summonerName}`, fetcher)
+    const { data: summonerData, error } = useSWR(() => region && summonerName && `/api/summoner/${region}/${summonerName}`, fetcher)
     const [matches, setMatches] = useState([])
     const [progress, setProgress] = useState(0)
     const [matchesSummary, setMatchesSummary] = useState(null)
@@ -30,28 +34,66 @@ export default function SummonerInfo() {
 
     useEffect(() => {
         (async () => {
-            if (!summonerData || !summonerData.live) {
-                setApiError({ message: "Looks like we've run into a problem. It might be because either the chosen summoner is not in a live game right now or anything else. Sorry about that." })
-            }
-            if (region && summonerData && summonerData.history.matches.length > 0) {
-                const array = summonerData.history.matches.slice(0, 20)
-                for (let m of array) {
-                    const res = await fetch(`/api/matches/${region}/${m.gameId}`)
-                    const data = await res.json()
-                    setMatches(matches.push(data));
-                    setProgress(parseInt((matches.length / array.length) * 100))
+            try {
+                if (region && summonerData && summonerData.history.matches.length > 0 && summonerData.live) {
+                    setApiError(null);
+                    const array = summonerData.history.matches.slice(0, 3)
+                    for (let m of array) {
+                        const res = await fetch(`/api/matches/${region}/${m.gameId}`)
+                        const data = await res.json()
+                        if (matches.push) {
+                            setMatches(matches.push(data));
+                            setProgress(parseInt((matches.length / array.length) * 100))
+                        }
+                    }
+                    setLoadingMatchesSummary(true)
+                    setMatchesSummary(parseMatches(matches, summonerData.accountInfo, summonerData.live))
+                    setLoadingMatchesSummary(false)
                 }
-                setLoadingMatchesSummary(true)
-                setMatchesSummary(parseMatches(matches, summonerData.accountInfo.accountId))
+            } catch (error) {
+                console.log(error)
+                setApiError({ message: "Looks like we've run into a problem. It might be because either the chosen summoner is not in a live game right now or anything else. Sorry about that." })
             }
         })()
     }, [summonerData])
 
-    useEffect(() => {
-        if (matchesSummary) {
-            setLoadingMatchesSummary(false)
-        }
-    }, [matchesSummary])
+    const renderParticipantsInfo = () => {
+        return (
+            matchesSummary && <div className="row">
+                {Object.values(matchesSummary).map((enemyAllied, index) => {
+                    return (
+                        <div className="col" key={index}>
+                            <div className="text-center text-muted mb-4">
+                                <h3>
+                                    {
+                                        enemyAllied[0].enemy ? "Enemies" : "Allieds"
+                                    }
+                                </h3>
+                            </div>
+                            {enemyAllied.map((ea, index) => {
+                                return (
+                                    <div className="row" key={index}>
+                                        <div className="col">
+                                            <div className="row">
+                                                <div className="col sm-3">
+                                                    <a href="#" className="avatar avatar-sm rounded-circle" data-toggle="tooltip" data-original-title={ea.summonerName}>
+                                                        <img alt="Image placeholder" src={`https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/${ea.profileIconId}.jpg`} />
+                                                    </a>
+                                                </div>
+                                                <div className="col text-left">
+                                                    {ea.summonerName}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    )
+                })}
+            </div>
+        )
+    }
 
     const renderContent = () => {
         return (
@@ -59,6 +101,7 @@ export default function SummonerInfo() {
                 {!summonerData && <Spinner label="Fetching basic info" />}
                 {summonerData && !loadingMatchesSummary && !matchesSummary && <ProgressBar label="Fetching matches" progress={progress} />}
                 {loadingMatchesSummary && <Spinner label="Doing some complicated calculations" />}
+                {!loadingMatchesSummary && renderParticipantsInfo()}
             </>
         )
     }
